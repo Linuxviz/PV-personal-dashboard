@@ -8,7 +8,7 @@ services:
     env_file:
       - .env.local
     volumes:
-      - .:/code
+      - .:/app
     depends_on:
       - mongodb
 
@@ -18,7 +18,7 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - data:/bitnami/mongodb
+      - data:/mongodb
 #    environment:
 #      MONGO_INITDB_ROOT_USERNAME: root
 #      MONGO_INITDB_ROOT_PASSWORD: example
@@ -26,3 +26,4 @@ services:
 
 volumes:
   data:
+  .:
