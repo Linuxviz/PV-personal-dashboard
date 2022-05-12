@@ -1,0 +1,28 @@
+version: "3"
+
+services:
+  web:
+    build: .
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    volumes:
+      - .:/code
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - data:/bitnami/mongodb
+#    environment:
+#      MONGO_INITDB_ROOT_USERNAME: root
+#      MONGO_INITDB_ROOT_PASSWORD: example
+
+
+volumes:
+  data:
