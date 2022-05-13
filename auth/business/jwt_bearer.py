@@ -8,6 +8,7 @@ def verify_jwt(jwtoken: str) -> bool:
     isTokenValid: bool = False
 
     payload = decode_jwt(jwtoken)
+    print(payload)
     if payload:
         isTokenValid = True
     return isTokenValid

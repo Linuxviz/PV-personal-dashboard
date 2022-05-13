@@ -6,7 +6,9 @@ from pydantic import BaseSettings
 
 # from models.admin import Admin
 # from models.student import Student
-from auth.models import Admin
+from auth.models import User
+from dashboard.models.dasboard import Dashboard
+from dashboard.models.tags import Tag
 
 
 class Settings(BaseSettings):
@@ -27,7 +29,7 @@ async def initiate_database():
         client = AsyncIOMotorClient(Settings().DATABASE_URL)
         await init_beanie(
             database=client.get_default_database(),
-            document_models=[Admin]
+            document_models=[User, Dashboard]
         )
     except Exception as e:
         print("Error connection to database: ", e)

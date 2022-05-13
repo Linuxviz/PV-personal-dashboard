@@ -4,6 +4,7 @@ from auth.business.jwt_bearer import JWTBearer
 # from routes.student import router as StudentRouter
 from auth.views import router as auth_router
 from config.config import initiate_database
+from dashboard.routers.routers import versioned_router
 
 app = FastAPI()
 
@@ -21,4 +22,5 @@ async def read_root():
 
 
 app.include_router(auth_router, tags=["Administrator"], prefix="/admin")
+app.include_router(versioned_router)
 # app.include_router(StudentRouter, tags=["Students"], prefix="/student", dependencies=[Depends(token_listener)])

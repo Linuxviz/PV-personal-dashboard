@@ -2,14 +2,14 @@ from fastapi import HTTPException, Depends, status
 from fastapi.security import HTTPBasicCredentials, HTTPBasic
 from passlib.context import CryptContext
 
-from auth.models import Admin
+from auth.models import User
 
 security = HTTPBasic()
 hash_helper = CryptContext(schemes=["bcrypt"])
 
 
 async def validate_login(credentials: HTTPBasicCredentials = Depends(security)):
-    admin = Admin.find_one({"email": credentials.username})
+    admin = User.find_one({"email": credentials.username})
     if admin:
         password = hash_helper.verify(credentials.password, admin['password'])
         if not password:

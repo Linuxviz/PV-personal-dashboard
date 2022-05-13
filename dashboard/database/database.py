@@ -12,10 +12,23 @@
 # admin_collection = Admin
 # student_collection = Student
 #
-#
-# async def add_admin(new_admin: Admin) -> Admin:
-#     admin = await new_admin.create()
-#     return admin
+from beanie import PydanticObjectId
+
+from dashboard.models.dasboard import Dashboard
+from dashboard.models.tags import Tag
+
+
+async def add_tag(dashboard_id: PydanticObjectId, tag: Tag) -> Tag:
+    #FIXME the raw query may be more useful
+    dashboard = await Dashboard.get(dashboard_id)
+    update_query = {"$push": {
+        'tags': tag
+    }}
+
+    if dashboard:
+        created_tag = await dashboard.update(update_query)
+        return created_tag
+    return None
 #
 #
 # async def retrieve_students() -> List[Student]:

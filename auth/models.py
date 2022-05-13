@@ -1,12 +1,17 @@
+from typing import List
+
 from beanie import Document
 from fastapi.security import HTTPBasicCredentials
 from pydantic import BaseModel, EmailStr
 
+from dashboard.models.dasboard import Dashboard
 
-class Admin(Document):
+
+class User(Document):
     fullname: str
     email: EmailStr
     password: str
+    dashboards: List[Dashboard]
 
     class Collection:
         name = "admin"
