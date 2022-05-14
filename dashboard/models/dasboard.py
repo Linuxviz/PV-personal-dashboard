@@ -1,3 +1,4 @@
+from types import NoneType
 from typing import List
 
 from beanie import Document
@@ -9,7 +10,7 @@ from dashboard.models.tags import Tag
 
 class Dashboard(Document):
     name: str
-    background_url: str
+    background_url: str|NoneType = None
     tags: List[Tag]
     columns: List[Column]
     issues: List[Issue]
@@ -17,7 +18,10 @@ class Dashboard(Document):
     class Config:
         schema_extra = {
             "example": {
-                'name': 'tag_name',
-                'color': 'Color'
+                'name': 'dashboard_name',
+                'background_url': '/test/uri',
+                'tags': [Tag.Config.schema_extra, ],
+                'columns': [Column.Config.schema_extra],
+                'issues': [Issue.Config.schema_extra],
             }
         }
