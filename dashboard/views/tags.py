@@ -1,18 +1,12 @@
 from beanie import PydanticObjectId
 from fastapi import APIRouter
-
-
-from starlette import status
-from starlette.responses import JSONResponse
-
-# from dashboard.mongo import collection_lo
 from dashboard.database.database import add_tag
 from dashboard.models.tags import Tag
 
 tags_router = APIRouter()
 
 
-@tags_router.get("{dashboard_id}/tag/{tag_id}", tags=['tags',])
+@tags_router.get("{dashboard_id}/tag/{tag_id}", tags=['tags', ])
 async def tag(dashboard_id: PydanticObjectId, tag_id: PydanticObjectId):
     """
     EN:
@@ -22,9 +16,10 @@ async def tag(dashboard_id: PydanticObjectId, tag_id: PydanticObjectId):
     # created_student = await collection_lo["students"].find_one({"_id": new_student.inserted_id})
     # return JSONResponse(status_code=status.HTTP_201_CREATED, content=created_student)
 
-    return {"message": f"Данные о тэге "} # created_student
+    return {"message": f"Данные о тэге "}  # created_student
 
-@tags_router.post("{dashboard_id}/tag", tags=['tags',])
+
+@tags_router.post("{dashboard_id}/tag", tags=['tags', ])
 async def tag(dashboard_id: PydanticObjectId, tag: Tag):
     """
     EN:
@@ -38,7 +33,8 @@ async def tag(dashboard_id: PydanticObjectId, tag: Tag):
         "tag": tag
     }
 
-@tags_router.get("/tags", tags=['tags',])
+
+@tags_router.get("/tags", tags=['tags', ])
 async def tags():
     """
     EN:

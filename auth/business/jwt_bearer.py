@@ -1,17 +1,17 @@
+from typing import Tuple
+
 from fastapi import Request, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from auth.business.jwt_handler import decode_jwt
 
 
-def verify_jwt(jwtoken: str) -> bool:
-    isTokenValid: bool = False
-
+def verify_jwt(jwtoken: str) -> Tuple[bool, dict]:
+    is_token_valid: bool = False
     payload = decode_jwt(jwtoken)
-    print(payload)
     if payload:
-        isTokenValid = True
-    return isTokenValid
+        is_token_valid = True
+    return is_token_valid, payload
 
 
 class JWTBearer(HTTPBearer):
@@ -26,9 +26,10 @@ class JWTBearer(HTTPBearer):
             if not credentials.scheme == "Bearer":
                 raise HTTPException(status_code=403, detail="Invalid authentication token")
 
-            if not verify_jwt(credentials.credentials):
+            is_token_valid, payload = verify_jwt(credentials.credentials)
+            if not is_token_valid:
                 raise HTTPException(status_code=403, detail="Invalid token or expired token")
 
-            return credentials.credentials
+            return payload
         else:
             raise HTTPException(status_code=403, detail="Invalid authorization token")

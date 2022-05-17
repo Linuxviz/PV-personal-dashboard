@@ -3,12 +3,12 @@ from fastapi import APIRouter
 # from dashboard.views.backgrounds import backgrounds_router
 # from dashboard.views.colums import columns_router
 # from dashboard.views.comments import comments_router
-# from dashboard.views.dashboard import main_dashboard_router
+from dashboard.views.dashboard import dashboards_router
 # from dashboard.views.issues import issues_router
 from dashboard.views.tags import tags_router
 
 dashboard_router = APIRouter(prefix="/dashboard")  # router for main objects on personal dashboard
-# dashboard_router.include_router(main_dashboard_router)
+dashboard_router.include_router(dashboards_router)
 # dashboard_router.include_router(issues_router)
 # dashboard_router.include_router(comments_router)
 dashboard_router.include_router(tags_router)

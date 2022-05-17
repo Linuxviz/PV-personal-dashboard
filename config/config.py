@@ -31,5 +31,10 @@ async def initiate_database():
             database=client.get_default_database(),
             document_models=[User, Dashboard]
         )
+        return client
     except Exception as e:
         print("Error connection to database: ", e)
+
+
+# async def close_database(client):
+#     client.close()

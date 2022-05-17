@@ -13,8 +13,10 @@
 # student_collection = Student
 #
 from beanie import PydanticObjectId
+from fastapi import HTTPException
 
-from dashboard.models.dasboard import Dashboard
+from auth.models import User
+from dashboard.models.dasboard import Dashboard, DashboardCreate
 from dashboard.models.tags import Tag
 
 
@@ -29,6 +31,27 @@ async def add_tag(dashboard_id: PydanticObjectId, tag: Tag) -> Tag:
         created_tag = await dashboard.update(update_query)
         return created_tag
     return None
+
+
+async def create_dashboard(dashboard_data: DashboardCreate, user_id: PydanticObjectId) -> Dashboard:
+    """
+    EN: When we create dashboard we should add dashboard to user model
+
+    RU:
+    """
+    dashboard = Dashboard(**dashboard_data.dict())
+    created_dashboard = await dashboard.create()
+    if not created_dashboard:
+        raise HTTPException(status_code=400, detail="Can not create dashboard")
+    user = await User.get(user_id)
+    update_query = {"$push": {
+        'dashboards': PydanticObjectId(created_dashboard.id)
+    }}
+    if not user:
+        raise HTTPException(status_code=400, detail="Can not find user")
+    await user.update(update_query)
+    return created_dashboard
+
 #
 #
 # async def retrieve_students() -> List[Student]:

@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 
 from auth.business.jwt_bearer import JWTBearer
 # from routes.student import router as StudentRouter
@@ -16,11 +16,14 @@ async def start_database():
     await initiate_database()
 
 
+# @app.on_event("shutdown")
+# async def out_database():
+#     await close_database()
+
 @app.get("/", tags=["Root"])
 async def read_root():
     return {"message": "Welcome to this fantastic app.!!ff!!@"}
 
 
 app.include_router(auth_router, tags=["Administrator"], prefix="/admin")
-app.include_router(versioned_router)
-# app.include_router(StudentRouter, tags=["Students"], prefix="/student", dependencies=[Depends(token_listener)])
+app.include_router(versioned_router)  #

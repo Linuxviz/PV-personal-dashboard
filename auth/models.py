@@ -1,6 +1,6 @@
-from typing import List
+from typing import List, Optional
 
-from beanie import Document
+from beanie import Document, PydanticObjectId
 from fastapi.security import HTTPBasicCredentials
 from pydantic import BaseModel, EmailStr
 
@@ -11,10 +11,10 @@ class User(Document):
     fullname: str
     email: EmailStr
     password: str
-    dashboards: List[Dashboard]
+    dashboards: List[PydanticObjectId] = []
 
     class Collection:
-        name = "admin"
+        name = "user"
 
     class Config:
         schema_extra = {
@@ -26,7 +26,9 @@ class User(Document):
         }
 
 
-class AdminSignIn(HTTPBasicCredentials):
+class AdminSignIn(BaseModel):
+    email: EmailStr
+    password: str
     class Config:
         schema_extra = {
             "example": {
