@@ -8,7 +8,7 @@ from pydantic import BaseSettings
 # from models.student import Student
 from auth.models import User
 from dashboard.models.dasboard import Dashboard
-from dashboard.models.tags import Tag
+from dashboard.schemas.tags import Tag
 
 
 class Settings(BaseSettings):
