@@ -4,27 +4,57 @@ from fastapi import APIRouter, Depends
 from starlette.requests import Request
 
 from auth.business.jwt_handler import secret_key
-from dashboard.database.database import create_dashboard
-from dashboard.models.dasboard import Dashboard, DashboardCreate, DashboardCreateResponse
+from dashboard.database.database import create_dashboard, get_dashboard, get_dashboards
+from dashboard.models.dasboard import Dashboard, DashboardCreate, DashboardCreateResponse, DashboardListResponse
 from auth.business.jwt_bearer import JWTBearer
 
 dashboards_router = APIRouter()
 
 
-@dashboards_router.get("/{dashboard_id}", tags=['dashboards', ], response_model=Dashboard)
-async def tag(dashboard_id: PydanticObjectId):
+@dashboards_router.get("/dashboards", tags=['dashboards', ], response_model=DashboardListResponse)
+async def get_dashboards_view(credentials=Depends(JWTBearer())):
+    """
+    EN:
+    RU: Возвращает список id дашбордов доступных пользователю
+    """
+    dashboards = await get_dashboards(credentials['user_id'])
+    if dashboards:
+        return {
+            "dashboards_ids": dashboards,
+            "status_code": 200,
+            "response_type": "success",
+            "description": "The list of ids dashboards for current user",
+        }
+    return {
+        "status_code": 400,
+        "response_type": "error",
+        "description": f"Can not find dashboard with {credentials['user_id']} user",
+    }
+
+@dashboards_router.get("/{dashboard_id}", tags=['dashboards', ], response_model=DashboardCreateResponse)
+async def get_dashboard_view(dashboard_id: PydanticObjectId):
     """
     EN:
     RU: Возвращает данные дашборда по его id
     """
-    # new_student = await collection_lo["students"].insert_one({'boba':tag_id})
-    # created_student = await collection_lo["students"].find_one({"_id": new_student.inserted_id})
-    # return JSONResponse(status_code=status.HTTP_201_CREATED, content=created_student)
-    return {"message": f"Данные о Доске "}  # created_student
+    dashboard = await get_dashboard(dashboard_id)
+    if dashboard:
+        return {
+            "dashboard": dashboard,
+            "status_code": 200,
+            "response_type": "success",
+            "description": "Dashboard created successfully",
+        }
+    return {
+        "dashboard": dashboard,
+        "status_code": 400,
+        "response_type": "error",
+        "description": "Dashboard created unsuccessfully",
+    }
 
 
-@dashboards_router.post("/", tags=['dashboards', ], response_model=DashboardCreateResponse)
-async def tag(dashboard: DashboardCreate, credentials=Depends(JWTBearer())):
+@dashboards_router.post("/dashboard", tags=['dashboards', ], response_model=DashboardCreateResponse)
+async def create_dashboard_view(dashboard: DashboardCreate, credentials=Depends(JWTBearer())):
     """
     EN: Create dashboard, may be with background image
     RU: Создает дашборд

@@ -12,6 +12,8 @@
 # admin_collection = Admin
 # student_collection = Student
 #
+from typing import List
+
 from beanie import PydanticObjectId
 from fastapi import HTTPException
 
@@ -21,7 +23,7 @@ from dashboard.models.tags import Tag
 
 
 async def add_tag(dashboard_id: PydanticObjectId, tag: Tag) -> Tag:
-    #FIXME the raw query may be more useful
+    # FIXME the raw query may be more useful
     dashboard = await Dashboard.get(dashboard_id)
     update_query = {"$push": {
         'tags': tag
@@ -31,6 +33,30 @@ async def add_tag(dashboard_id: PydanticObjectId, tag: Tag) -> Tag:
         created_tag = await dashboard.update(update_query)
         return created_tag
     return None
+
+
+async def get_dashboard(dashboard_id: PydanticObjectId) -> Dashboard:
+    """
+    EN: Return Dashboard
+
+    RU:
+    """
+    dashboard = await Dashboard.get(dashboard_id)
+    if not dashboard:
+        raise HTTPException(status_code=400, detail="Can not find dashboard")
+    return dashboard
+
+
+async def get_dashboards(user_id: PydanticObjectId) -> List[PydanticObjectId]:
+    """
+    EN: Return list of ids dashboards current user
+
+    RU:
+    """
+    user = await User.get(user_id)
+    if not user:
+        raise HTTPException(status_code=400, detail="Can not find user")
+    return user.dashboards
 
 
 async def create_dashboard(dashboard_data: DashboardCreate, user_id: PydanticObjectId) -> Dashboard:

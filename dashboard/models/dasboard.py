@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from beanie import Document
+from beanie import Document, PydanticObjectId
 from pydantic import BaseModel
 
 from dashboard.models.columns import Column
@@ -53,5 +53,18 @@ class DashboardCreateResponse(Response):
                 "response_type": "success",
                 "description": "Operation successful",
                 "dashboard": Dashboard.Config.schema_extra
+            }
+        }
+
+class DashboardListResponse(Response):
+    dashboards_ids: List[PydanticObjectId]
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "status_code": 200,
+                "response_type": "success",
+                "description": "Operation successful",
+                "dashboards": []
             }
         }

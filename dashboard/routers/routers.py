@@ -7,7 +7,7 @@ from dashboard.views.dashboard import dashboards_router
 # from dashboard.views.issues import issues_router
 from dashboard.views.tags import tags_router
 
-dashboard_router = APIRouter(prefix="/dashboard")  # router for main objects on personal dashboard
+dashboard_router = APIRouter(prefix="/pvd")  # router for main objects on personal dashboard
 dashboard_router.include_router(dashboards_router)
 # dashboard_router.include_router(issues_router)
 # dashboard_router.include_router(comments_router)
