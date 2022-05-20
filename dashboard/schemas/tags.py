@@ -1,5 +1,6 @@
-from typing import List
+from typing import List, Optional
 
+import uuid as uuid
 from pydantic import BaseModel
 from pydantic.color import Color
 
@@ -15,6 +16,7 @@ class Tag(BaseModel):
         * RGB/RGBA strings (e.g. "rgb(255, 255, 255)", "rgba(255, 255, 255, 0.5)")
         * HSL strings (e.g. "hsl(270, 60%, 70%)", "hsl(270, 60%, 70%, .5)")
     """
+    id: Optional[uuid.UUID] = uuid.uuid4()
     name: str
     color: Color
 
@@ -24,6 +26,27 @@ class Tag(BaseModel):
                 'name': 'tag_name',
                 'color': 'Color'
             }
+        }
+
+
+class TagUpdate(BaseModel):
+    name: Optional[str]
+    color: Optional[Color]
+
+    class Config:
+        schema_extra = {
+            "example1": {
+                'name': 'tag_name',
+                'color': 'red'
+            },
+            "example2": {
+            },
+            "example3": {
+                'color': 'white'
+            },
+            "example4": {
+                'name': 'new_name_for_tag',
+            },
         }
 
 
@@ -41,7 +64,7 @@ class TagListResponse(Response):
         }
 
 
-class TagCreateResponse(Response):
+class TagChangeResponse(Response):
     tag: Tag
 
     class Config:

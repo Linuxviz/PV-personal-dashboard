@@ -24,16 +24,42 @@ class Settings(BaseSettings):
         orm_mode = True
 
 
-async def initiate_database():
-    try:
-        client = AsyncIOMotorClient(Settings().DATABASE_URL)
-        await init_beanie(
-            database=client.get_default_database(),
-            document_models=[User, Dashboard]
-        )
-        return client
-    except Exception as e:
-        print("Error connection to database: ", e)
+# async def initiate_database():
+#     try:
+#         client = AsyncIOMotorClient(Settings().DATABASE_URL)
+#         await init_beanie(
+#             database=client.get_default_database(),
+#             document_models=[User, Dashboard]
+#         )
+#         return client
+#     except Exception as e:
+#         print("Error connection to database: ", e)
+
+
+
+class InitiateDatabase():
+    def __int__(self):
+        self.client: AsyncIOMotorClient | None = None
+
+    async def get_db(self, db_name: str):
+        try:
+            db = self.client[db_name]
+        except:
+            db = None
+        return db
+
+    async def initiate_database(self):
+        try:
+            self.client = AsyncIOMotorClient(Settings().DATABASE_URL)
+            await init_beanie(
+                database=self.client.get_default_database(),
+                document_models=[User, Dashboard]
+            )
+            return self.client
+        except Exception as e:
+            print("Error connection to database: ", e)
+
+initdb = InitiateDatabase()
 
 
 # async def close_database(client):
