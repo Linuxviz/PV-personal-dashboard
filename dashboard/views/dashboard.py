@@ -2,7 +2,6 @@ from beanie import PydanticObjectId
 from fastapi import APIRouter, Depends
 
 from dashboard.database.dashboards import get_dashboard, get_dashboards, create_dashboard, delete_dashboard
-from dashboard.models.dasboard import Dashboard
 from dashboard.schemas.dashboards import DashboardCreate, DashboardCreateResponse, DashboardListResponse
 from auth.business.jwt_bearer import JWTBearer
 

@@ -3,12 +3,14 @@ from typing import List
 
 from beanie import PydanticObjectId
 from fastapi import HTTPException
+from pydantic import BaseModel
 
 from config.config import db as mongodb
 from dashboard.models.dasboard import Dashboard
 from dashboard.schemas.tags import Tag, TagUpdate
 
 
+# res2 = await collection.find_one({"_id": dashboard_id, "tags.id": tag_id}, {'tags.$':1, '_id':0}) the single field
 async def get_tags(dashboard_id: PydanticObjectId) -> List[Tag]:
     dashboard = await Dashboard.get(dashboard_id)
     if not dashboard:
@@ -36,36 +38,42 @@ async def create_tag(dashboard_id: PydanticObjectId, tag: Tag) -> Tag:
 
 
 async def update_tag(dashboard_id: PydanticObjectId, tag_id: uuid.UUID, tag: TagUpdate) -> Tag:
-    """name tag must be uniq, one of color or name must be"""
-    print(tag.dict())
-    #FIXME сделать более общий подход что бы словарь проматывался и подсатвлялся а если есть имя то
-    #нужно добавлять условие по имени
+    """ name tag must be uniq, one of color or name must be """
     db = await mongodb.get_db('mongodb')
     collection = db['dashboard']
     find_query = {
         "_id": dashboard_id,
         "tags.id": tag_id
     }
-    update_query = {'$set': None}
-    print("______________", dir(tag))
-    if tag.name is not None:
-        find_query['tags.name'] = {"$ne": f'{tag.name}'}
-        if tag.name is not None:
-            update_query = {
-                '$set': {
-                    'tags.$.color': f'{tag.color}',
-                    'tags.$.name': f'{tag.name}'
-                }
-            }
-    else:
-        update_query = {
-            '$set': {
-                'tags.$.color': f'{tag.color}',
-            }
-        }
-
+    update_query = {}
+    fields = tag.dict()
+    for field in fields:
+        if fields[field] is not None:
+            update_query[f'tags.$.{field}'] = f'{fields[field]}'
+            if field == 'name':
+                find_query[f'tags.{field}'] = {"$ne": f'{fields[field]}'}
     result = await collection.update_one(
         find_query,
-        update_query
+        {'$set': update_query}
     )
-    print("***********", result.acknowledged, result.matched_count, result.modified_count, "********")
+    if result.modified_count != 1:
+        raise HTTPException(status_code=400, detail="something wrong")
+    result = await collection.find_one({"_id": dashboard_id}, {'_id': 0, 'tags': {'$elemMatch': {'id': tag_id}}})
+    return Tag(**result['tags'][0])
+
+
+async def delete_tag(dashboard_id: PydanticObjectId, tag_id: uuid.UUID) -> List[Tag]:
+    db = await mongodb.get_db('mongodb')
+    collection = db['dashboard']
+    find_query = {
+        "_id": dashboard_id,
+        "tags.id": tag_id
+    }
+    result = await collection.update_one(
+        find_query,
+        {'$pull': {'tags': {'id': tag_id}}}
+    )
+    if result.modified_count != 1:
+        raise HTTPException(status_code=400, detail="something wrong")
+    result = await collection.find_one({"_id": dashboard_id}, {'tags': 1, '_id': 0})
+    return result['tags']

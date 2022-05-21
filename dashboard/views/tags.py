@@ -1,8 +1,11 @@
 import uuid
+from typing import List
 
 from beanie import PydanticObjectId
-from fastapi import APIRouter
-from dashboard.database.tags import get_tags, create_tag, update_tag
+from fastapi import APIRouter, HTTPException
+from starlette.responses import Response
+
+from dashboard.database.tags import get_tags, create_tag, update_tag, delete_tag
 from dashboard.schemas.tags import Tag, TagListResponse, TagChangeResponse, TagUpdate
 
 tags_router = APIRouter()
@@ -52,7 +55,7 @@ async def set_tag_view(dashboard_id: PydanticObjectId, tag: Tag):
     }
 
 
-@tags_router.patch("dashboard/{dashboard_id}/tag/{tag_name}", tags=['tags', ] )#,response_model=TagChangeResponse
+@tags_router.patch("dashboard/{dashboard_id}/tag/{tag_id}", tags=['tags'], response_model=TagChangeResponse)
 async def update_tag_view(dashboard_id: PydanticObjectId, tag_id: uuid.UUID, tag: TagUpdate):
     """
     EN:
@@ -78,5 +81,19 @@ async def update_tag_view(dashboard_id: PydanticObjectId, tag_id: uuid.UUID, tag
         "response_type": "error",
         "description": "Can not update tag",
     }
+
+
+@tags_router.delete('/dashboard/{dashboard_id}/tag/{tag_id}', tags=['tags', ], response_model=List[Tag])  #
+async def tag_delete(dashboard_id: PydanticObjectId, tag_id: uuid.UUID):
+    """
+    EN: Delete tag in dashboard, and return list of tags. If all tags id deletes will return empty list "[]"
+
+    RU:
+
+    """
+    deleted_tag = await delete_tag(dashboard_id, tag_id)
+    if deleted_tag or len(deleted_tag) == 0:
+        return deleted_tag
+    raise HTTPException(status_code=400, detail="Can not find tag for deleting")
 
 # TODO need delete tag, bun before need delete tag from issues.
