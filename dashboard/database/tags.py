@@ -1,16 +1,13 @@
-import pprint
 import uuid
 from typing import List
 
 from beanie import PydanticObjectId
-from beanie.odm.operators.find.comparison import In
 from fastapi import HTTPException
 
-from config.config import InitiateDatabase, initdb
+from config.config import db as mongodb
 from dashboard.models.dasboard import Dashboard
 from dashboard.schemas.tags import Tag, TagUpdate
 
-x = initdb
 
 async def get_tags(dashboard_id: PydanticObjectId) -> List[Tag]:
     dashboard = await Dashboard.get(dashboard_id)
@@ -39,14 +36,36 @@ async def create_tag(dashboard_id: PydanticObjectId, tag: Tag) -> Tag:
 
 
 async def update_tag(dashboard_id: PydanticObjectId, tag_id: uuid.UUID, tag: TagUpdate) -> Tag:
-    db = await x.get_db('mongodb')
+    """name tag must be uniq, one of color or name must be"""
+    print(tag.dict())
+    #FIXME сделать более общий подход что бы словарь проматывался и подсатвлялся а если есть имя то
+    #нужно добавлять условие по имени
+    db = await mongodb.get_db('mongodb')
     collection = db['dashboard']
-    result = await collection.update_one(
-        {
-            "_id": dashboard_id,
-            "tags.id": tag_id
-        },
-        {
-            '$set': {'tags.$.color': 'orange'}
+    find_query = {
+        "_id": dashboard_id,
+        "tags.id": tag_id
+    }
+    update_query = {'$set': None}
+    print("______________", dir(tag))
+    if tag.name is not None:
+        find_query['tags.name'] = {"$ne": f'{tag.name}'}
+        if tag.name is not None:
+            update_query = {
+                '$set': {
+                    'tags.$.color': f'{tag.color}',
+                    'tags.$.name': f'{tag.name}'
+                }
+            }
+    else:
+        update_query = {
+            '$set': {
+                'tags.$.color': f'{tag.color}',
+            }
         }
+
+    result = await collection.update_one(
+        find_query,
+        update_query
     )
+    print("***********", result.acknowledged, result.matched_count, result.modified_count, "********")

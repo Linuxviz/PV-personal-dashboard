@@ -3,12 +3,8 @@ from typing import Optional
 from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseSettings
-
-# from models.admin import Admin
-# from models.student import Student
 from auth.models import User
 from dashboard.models.dasboard import Dashboard
-from dashboard.schemas.tags import Tag
 
 
 class Settings(BaseSettings):
@@ -24,29 +20,16 @@ class Settings(BaseSettings):
         orm_mode = True
 
 
-# async def initiate_database():
-#     try:
-#         client = AsyncIOMotorClient(Settings().DATABASE_URL)
-#         await init_beanie(
-#             database=client.get_default_database(),
-#             document_models=[User, Dashboard]
-#         )
-#         return client
-#     except Exception as e:
-#         print("Error connection to database: ", e)
-
-
-
-class InitiateDatabase():
+class DataBase:
     def __int__(self):
         self.client: AsyncIOMotorClient | None = None
 
     async def get_db(self, db_name: str):
         try:
-            db = self.client[db_name]
+            current_db = self.client[db_name]
         except:
-            db = None
-        return db
+            current_db = None
+        return current_db
 
     async def initiate_database(self):
         try:
@@ -59,8 +42,8 @@ class InitiateDatabase():
         except Exception as e:
             print("Error connection to database: ", e)
 
-initdb = InitiateDatabase()
 
+db = DataBase()
 
 # async def close_database(client):
 #     client.close()

@@ -33,6 +33,14 @@ class TagUpdate(BaseModel):
     name: Optional[str]
     color: Optional[Color]
 
+    #TODO name or color must be
+    # @root_validator
+    # def check_passwords_match(cls, values):
+    #     pw1, pw2 = values.get('password1'), values.get('password2')
+    #     if pw1 is not None and pw2 is not None and pw1 != pw2:
+    #         raise ValueError('passwords do not match')
+    #     return values
+
     class Config:
         schema_extra = {
             "example1": {

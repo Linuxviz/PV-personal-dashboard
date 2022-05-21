@@ -3,7 +3,7 @@ from fastapi import FastAPI, Depends
 from auth.business.jwt_bearer import JWTBearer
 # from routes.student import router as StudentRouter
 from auth.views import router as auth_router
-from config.config import InitiateDatabase, initdb
+from config.config import DataBase, db
 from dashboard.routers.routers import versioned_router
 
 app = FastAPI()
@@ -12,7 +12,7 @@ token_listener = JWTBearer()
 
 @app.on_event("startup")
 async def start_database():
-    client = await initdb.initiate_database()
+    client = await db.initiate_database()
 
 # @app.on_event("shutdown")
 # async def out_database():
