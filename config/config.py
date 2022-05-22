@@ -24,12 +24,20 @@ class DataBase:
     def __int__(self):
         self.client: AsyncIOMotorClient | None = None
 
-    async def get_db(self, db_name: str):
+    async def get_db(self, db_name: str) -> AsyncIOMotorClient | None:
         try:
             current_db = self.client[db_name]
         except:
             current_db = None
         return current_db
+
+    async def get_collection(self, db_name: str, collection_name: str):
+        try:
+            current_db = self.client[db_name]
+            collection = current_db[collection_name]
+            return collection
+        except Exception as e:
+            print("Error getting db collection: ", e)
 
     async def initiate_database(self):
         try:

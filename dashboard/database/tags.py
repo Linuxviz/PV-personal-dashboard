@@ -3,14 +3,12 @@ from typing import List
 
 from beanie import PydanticObjectId
 from fastapi import HTTPException
-from pydantic import BaseModel
 
 from config.config import db as mongodb
 from dashboard.models.dasboard import Dashboard
 from dashboard.schemas.tags import Tag, TagUpdate
 
 
-# res2 = await collection.find_one({"_id": dashboard_id, "tags.id": tag_id}, {'tags.$':1, '_id':0}) the single field
 async def get_tags(dashboard_id: PydanticObjectId) -> List[Tag]:
     dashboard = await Dashboard.get(dashboard_id)
     if not dashboard:
@@ -77,3 +75,15 @@ async def delete_tag(dashboard_id: PydanticObjectId, tag_id: uuid.UUID) -> List[
         raise HTTPException(status_code=400, detail="something wrong")
     result = await collection.find_one({"_id": dashboard_id}, {'tags': 1, '_id': 0})
     return result['tags']
+
+
+async def get_tag(dashboard_id: PydanticObjectId, tag_id: uuid.UUID):
+    db = await mongodb.get_db('mongodb')
+    collection = db['dashboard']
+    find_query = {
+        "_id": dashboard_id,
+        "tags.id": tag_id
+    }
+    projection_query = {"tags.$": 1}
+    result = await collection.find_one(find_query, projection_query)
+    return result['tags'][0]

@@ -2,8 +2,8 @@ from typing import List, Optional
 
 from beanie import Document
 
-from dashboard.models.columns import Column
-from dashboard.models.issues import Issue
+from dashboard.schemas.columns import Column
+from dashboard.schemas.issues import Issue
 from dashboard.schemas.tags import Tag
 
 
