@@ -5,13 +5,13 @@ from beanie import PydanticObjectId
 from fastapi import APIRouter, HTTPException
 
 from dashboard.database.columns import create_column, update_column, delete_column, get_columns, get_column
-from dashboard.schemas.columns import Column
+from dashboard.schemas.columns import Column, ColumnCreate
 
 columns_router = APIRouter()
 
 
 @columns_router.get('/dashboard/{dashboard_id}/column/{column_id}', tags=['columns', ], response_model=Column)
-async def get_tag_view(dashboard_id: PydanticObjectId, column_id: uuid.UUID):
+async def get_column_view(dashboard_id: PydanticObjectId, column_id: uuid.UUID):
     """
     EN:
 
@@ -38,10 +38,10 @@ async def get_columns_view(dashboard_id: PydanticObjectId):
     return columns
 
 
-@columns_router.post("/dashboard/{dashboard_id}/column", tags=['columns', ], response_model=Column)
-async def set_column_view(dashboard_id: PydanticObjectId, column: Column):
+@columns_router.post("/dashboard/{dashboard_id}/column", tags=['columns', ])#, response_model=Column)
+async def set_column_view(dashboard_id: PydanticObjectId, column: ColumnCreate):
     """
-    EN:
+    EN: name must be uniq
 
     RU:
     """

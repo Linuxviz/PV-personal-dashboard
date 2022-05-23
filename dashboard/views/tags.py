@@ -54,7 +54,7 @@ async def set_tag_view(dashboard_id: PydanticObjectId, tag: Tag):
     }
 
 
-@tags_router.patch("dashboard/{dashboard_id}/tag/{tag_id}", tags=['tags'], response_model=TagChangeResponse)
+@tags_router.patch("/dashboard/{dashboard_id}/tag/{tag_id}", tags=['tags'], response_model=TagChangeResponse)
 async def update_tag_view(dashboard_id: PydanticObjectId, tag_id: uuid.UUID, tag: TagUpdate):
     """
     EN:
