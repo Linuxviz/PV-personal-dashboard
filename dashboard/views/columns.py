@@ -5,7 +5,7 @@ from beanie import PydanticObjectId
 from fastapi import APIRouter, HTTPException
 
 from dashboard.database.columns import create_column, update_column, delete_column, get_columns, get_column
-from dashboard.schemas.columns import Column, ColumnCreate
+from dashboard.schemas.columns import Column, ColumnCreate, ColumnUpdate
 
 columns_router = APIRouter()
 
@@ -53,7 +53,7 @@ async def set_column_view(dashboard_id: PydanticObjectId, column: ColumnCreate):
 
 
 @columns_router.patch("/dashboard/{dashboard_id}/column/{column_id}", tags=['columns'], response_model=Column)
-async def update_column_view(dashboard_id: PydanticObjectId, column_id: uuid.UUID, column: Column):
+async def update_column_view(dashboard_id: PydanticObjectId, column_id: uuid.UUID, column: ColumnUpdate):
     """
     EN:
 
@@ -75,7 +75,7 @@ async def delete_column_view(dashboard_id: PydanticObjectId, column_id: uuid.UUI
     EN: Delete tag in dashboard, and return list of tags. If all tags id deletes will return empty list "[]"
 
     RU:
-    # TODO need delete tag, bun before need delete tag from issues.
+    # TODO need delete column, bun before need delete tag from issues.
     """
     columns = await delete_column(dashboard_id, column_id)
     return columns

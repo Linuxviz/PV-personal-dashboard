@@ -29,3 +29,16 @@ class ColumnCreate(BaseModel):
                 'name': 'Column 1',
             }
         }
+
+
+class ColumnUpdate(BaseModel):
+    """
+    """
+    name: str
+
+    class Config:
+        schema_extra = {
+            "example": {
+                'name': 'New Column',
+            }
+        }
