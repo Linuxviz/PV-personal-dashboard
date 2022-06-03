@@ -2,8 +2,9 @@ import uuid
 from typing import List
 
 from beanie import PydanticObjectId
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 
+from auth.business.jwt_bearer import JWTBearer
 from dashboard.database.columns import create_column, update_column, delete_column, get_columns, get_column
 from dashboard.schemas.columns import Column, ColumnCreate, ColumnUpdate
 
@@ -11,7 +12,7 @@ columns_router = APIRouter()
 
 
 @columns_router.get('/dashboard/{dashboard_id}/column/{column_id}', tags=['columns', ], response_model=Column)
-async def get_column_view(dashboard_id: PydanticObjectId, column_id: uuid.UUID):
+async def get_column_view(dashboard_id: PydanticObjectId, column_id: uuid.UUID, credentials=Depends(JWTBearer())):
     """
     EN:
 
@@ -27,7 +28,7 @@ async def get_column_view(dashboard_id: PydanticObjectId, column_id: uuid.UUID):
     "/dashboard/{dashboard_id}/columns",
     tags=['columns', ],
     response_model=List[Column])
-async def get_columns_view(dashboard_id: PydanticObjectId):
+async def get_columns_view(dashboard_id: PydanticObjectId, credentials=Depends(JWTBearer())):
     """
     EN: Return list of all created tags in current dashboard
 
@@ -38,8 +39,8 @@ async def get_columns_view(dashboard_id: PydanticObjectId):
     return columns
 
 
-@columns_router.post("/dashboard/{dashboard_id}/column", tags=['columns', ])#, response_model=Column)
-async def set_column_view(dashboard_id: PydanticObjectId, column: ColumnCreate):
+@columns_router.post("/dashboard/{dashboard_id}/column", tags=['columns', ])  # , response_model=Column)
+async def set_column_view(dashboard_id: PydanticObjectId, column: ColumnCreate, credentials=Depends(JWTBearer())):
     """
     EN: name must be uniq
 
@@ -53,7 +54,8 @@ async def set_column_view(dashboard_id: PydanticObjectId, column: ColumnCreate):
 
 
 @columns_router.patch("/dashboard/{dashboard_id}/column/{column_id}", tags=['columns'], response_model=Column)
-async def update_column_view(dashboard_id: PydanticObjectId, column_id: uuid.UUID, column: ColumnUpdate):
+async def update_column_view(dashboard_id: PydanticObjectId, column_id: uuid.UUID, column: ColumnUpdate,
+                             credentials=Depends(JWTBearer())):
     """
     EN:
 
@@ -70,7 +72,7 @@ async def update_column_view(dashboard_id: PydanticObjectId, column_id: uuid.UUI
     tags=['columns', ],
     response_model=List[Column]
 )  #
-async def delete_column_view(dashboard_id: PydanticObjectId, column_id: uuid.UUID):
+async def delete_column_view(dashboard_id: PydanticObjectId, column_id: uuid.UUID, credentials=Depends(JWTBearer())):
     """
     EN: Delete tag in dashboard, and return list of tags. If all tags id deletes will return empty list "[]"
 

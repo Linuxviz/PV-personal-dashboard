@@ -1,5 +1,6 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
+from auth.business.jwt_bearer import JWTBearer
 from dashboard.views.columns import columns_router
 from dashboard.views.dashboard import dashboards_router
 from dashboard.views.issue import issues_router

@@ -4,7 +4,7 @@ from beanie import init_beanie
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseSettings
 from auth.models import User
-from dashboard.models.dasboard import Dashboard
+from dashboard.models.dashboard import Dashboard
 
 
 class Settings(BaseSettings):

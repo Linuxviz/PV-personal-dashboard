@@ -5,7 +5,7 @@ from beanie import PydanticObjectId
 from fastapi import HTTPException
 
 from config.config import db as mongodb
-from dashboard.models.dasboard import Dashboard
+from dashboard.models.dashboard import Dashboard
 from dashboard.schemas.tags import Tag, TagUpdate
 
 

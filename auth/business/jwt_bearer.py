@@ -29,7 +29,6 @@ class JWTBearer(HTTPBearer):
             is_token_valid, payload = verify_jwt(credentials.credentials)
             if not is_token_valid:
                 raise HTTPException(status_code=403, detail="Invalid token or expired token")
-
             return payload
         else:
             raise HTTPException(status_code=403, detail="Invalid authorization token")

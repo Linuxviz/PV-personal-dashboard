@@ -2,8 +2,9 @@ import uuid
 from typing import List
 
 from beanie import PydanticObjectId
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 
+from auth.business.jwt_bearer import JWTBearer
 from dashboard.database.issues import get_issue, get_issues, create_issue, update_issue, delete_issue
 from dashboard.schemas.issues import Issue, IssueCreate, IssueUpdate
 
@@ -11,7 +12,7 @@ issues_router = APIRouter()
 
 
 @issues_router.get('/dashboard/{dashboard_id}/issue/{issues_id}', tags=['issues', ], response_model=Issue)
-async def get_issue_view(dashboard_id: PydanticObjectId, issue_id: uuid.UUID):
+async def get_issue_view(dashboard_id: PydanticObjectId, issue_id: uuid.UUID, credentials=Depends(JWTBearer())):
     """
     EN: Return issue data
 
@@ -27,7 +28,7 @@ async def get_issue_view(dashboard_id: PydanticObjectId, issue_id: uuid.UUID):
     "/dashboard/{dashboard_id}/issues",
     tags=['issues', ],
     response_model=List[Issue])
-async def get_issues_view(dashboard_id: PydanticObjectId):
+async def get_issues_view(dashboard_id: PydanticObjectId, credentials=Depends(JWTBearer())):
     """
     EN: Return list of all created issues in current dashboard
 
@@ -39,7 +40,7 @@ async def get_issues_view(dashboard_id: PydanticObjectId):
 
 
 @issues_router.post("/dashboard/{dashboard_id}/issues", tags=['issues', ], response_model=Issue)
-async def set_issue_view(dashboard_id: PydanticObjectId, issue: IssueCreate):
+async def set_issue_view(dashboard_id: PydanticObjectId, issue: IssueCreate, credentials=Depends(JWTBearer())):
     """
     EN: name must be uniq
 
@@ -51,9 +52,10 @@ async def set_issue_view(dashboard_id: PydanticObjectId, issue: IssueCreate):
         return created_issue
     raise HTTPException(status_code=400, detail="Can not create issue")
 
-
+#TODO use UserTestDoc and DashboardTestDoc
+# TODO db.collection.bulkWrite()
 @issues_router.patch("/dashboard/{dashboard_id}/issue/{issue_id}", tags=['issues'], response_model=Issue)
-async def update_issue_view(dashboard_id: PydanticObjectId, issue_id: uuid.UUID, issue: IssueUpdate):
+async def update_issue_view(dashboard_id: PydanticObjectId, issue_id: uuid.UUID, issue: IssueUpdate, credentials=Depends(JWTBearer())):
     """
     EN:
 
@@ -70,7 +72,7 @@ async def update_issue_view(dashboard_id: PydanticObjectId, issue_id: uuid.UUID,
     tags=['issues', ],
     response_model=List[Issue]
 )  #
-async def delete_issue_view(dashboard_id: PydanticObjectId, issue_id: uuid.UUID):
+async def delete_issue_view(dashboard_id: PydanticObjectId, issue_id: uuid.UUID, credentials=Depends(JWTBearer())):
     """
     EN:
 

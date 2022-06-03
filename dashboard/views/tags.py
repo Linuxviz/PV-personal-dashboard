@@ -2,8 +2,9 @@ import uuid
 from typing import List
 
 from beanie import PydanticObjectId
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 
+from auth.business.jwt_bearer import JWTBearer
 from dashboard.database.tags import get_tags, create_tag, update_tag, delete_tag, get_tag
 from dashboard.schemas.tags import Tag, TagListResponse, TagChangeResponse, TagUpdate
 
@@ -14,7 +15,7 @@ tags_router = APIRouter()
     "/dashboard/{dashboard_id}/tags",
     tags=['tags', ],
     response_model=TagListResponse)
-async def get_tags_view(dashboard_id: PydanticObjectId):
+async def get_tags_view(dashboard_id: PydanticObjectId, credentials=Depends(JWTBearer())):
     """
     EN: Return list of all created tags in current dashboard
 
@@ -31,7 +32,7 @@ async def get_tags_view(dashboard_id: PydanticObjectId):
 
 
 @tags_router.post("/dashboard/{dashboard_id}/tag", tags=['tags', ], response_model=TagChangeResponse)
-async def set_tag_view(dashboard_id: PydanticObjectId, tag: Tag):
+async def set_tag_view(dashboard_id: PydanticObjectId, tag: Tag, credentials=Depends(JWTBearer())):
     """
     EN: Return list of all created tags in current dashboard
 
@@ -55,7 +56,7 @@ async def set_tag_view(dashboard_id: PydanticObjectId, tag: Tag):
 
 
 @tags_router.patch("/dashboard/{dashboard_id}/tag/{tag_id}", tags=['tags'], response_model=TagChangeResponse)
-async def update_tag_view(dashboard_id: PydanticObjectId, tag_id: uuid.UUID, tag: TagUpdate):
+async def update_tag_view(dashboard_id: PydanticObjectId, tag_id: uuid.UUID, tag: TagUpdate, credentials=Depends(JWTBearer())):
     """
     EN:
 
@@ -83,7 +84,7 @@ async def update_tag_view(dashboard_id: PydanticObjectId, tag_id: uuid.UUID, tag
 
 
 @tags_router.delete('/dashboard/{dashboard_id}/tag/{tag_id}', tags=['tags', ], response_model=List[Tag])  #
-async def delete_tag_view(dashboard_id: PydanticObjectId, tag_id: uuid.UUID):
+async def delete_tag_view(dashboard_id: PydanticObjectId, tag_id: uuid.UUID, credentials=Depends(JWTBearer())):
     """
     EN: Delete tag in dashboard, and return list of tags. If all tags id deletes will return empty list "[]"
 
@@ -97,7 +98,7 @@ async def delete_tag_view(dashboard_id: PydanticObjectId, tag_id: uuid.UUID):
 
 
 @tags_router.get('/dashboard/{dashboard_id}/tag/{tag_id}', tags=['tags', ], response_model=Tag)
-async def get_tag_view(dashboard_id: PydanticObjectId, tag_id: uuid.UUID):
+async def get_tag_view(dashboard_id: PydanticObjectId, tag_id: uuid.UUID, credentials=Depends(JWTBearer())):
     """
     EN:
 

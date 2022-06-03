@@ -36,6 +36,7 @@ async def admin_login(admin_credentials: AdminSignIn):
 @router.post("/new", response_model=AdminData)
 async def admin_signup(user: User = Body(...)):
     user_exists = await User.find_one(User.email == user.email)
+
     if user_exists:
         raise HTTPException(
             status_code=409,

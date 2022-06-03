@@ -3,6 +3,7 @@ from typing import List, Optional
 from beanie import Document
 
 from dashboard.schemas.columns import Column
+from dashboard.schemas.dashboards import UsersIds
 from dashboard.schemas.issues import Issue
 from dashboard.schemas.tags import Tag
 
@@ -13,6 +14,7 @@ class Dashboard(Document):
     tags: List[Tag] = []
     columns: List[Column] = []
     issues: List[Issue] = []
+    users: UsersIds
 
     class Collection:
         name = "dashboard"

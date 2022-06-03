@@ -1,17 +1,18 @@
-from typing import List, Optional
-
-from beanie import Document, PydanticObjectId
-from fastapi.security import HTTPBasicCredentials
+from beanie import Document
 from pydantic import BaseModel, EmailStr
 
-from dashboard.models.dasboard import Dashboard
+from auth.schemas import DashboardsIds
 
 
 class User(Document):
     fullname: str
     email: EmailStr
     password: str
-    dashboards: List[PydanticObjectId] = []
+    dashboards: DashboardsIds = DashboardsIds(
+        owner_dashboards_ids=[],
+        member_dashboards_ids=[],
+        observer_dashboards_ids=[]
+    )
 
     class Collection:
         name = "user"
@@ -29,6 +30,7 @@ class User(Document):
 class AdminSignIn(BaseModel):
     email: EmailStr
     password: str
+
     class Config:
         schema_extra = {
             "example": {
