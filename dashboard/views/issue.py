@@ -8,10 +8,26 @@ from auth.business.jwt_bearer import JWTBearer
 from dashboard.database.issues import get_issue, get_issues, create_issue, update_issue, delete_issue
 from dashboard.schemas.issues import Issue, IssueCreate, IssueUpdate
 
-issues_router = APIRouter()
+# tags_metadata = [
+#     {"name": "Get Methods", "description": "One other way around"},
+#     {"name": "Post Methods", "description": "Keep doing this"},
+#     {"name": "Delete Methods", "description": "KILL 'EM ALL"},
+#     {"name": "Put Methods", "description": "Boring"},
+# ]
+#
+# app = FastAPI(openapi_tags=tags_metadata)
+#
+#
+# @app.delete("/items", tags=["Delete Methods"])
+# @app.put("/items", tags=["Put Methods"])
+# @app.post("/items", tags=["Post Methods"])
+# @app.get("/items", tags=["Get Methods"])
 
 
-@issues_router.get('/dashboard/{dashboard_id}/issue/{issues_id}', tags=['issues', ], response_model=Issue)
+issues_router = APIRouter(prefix="/dashboard")
+
+
+@issues_router.get('/{dashboard_id}/issue/{issues_id}', tags=['issues', ], response_model=Issue)
 async def get_issue_view(dashboard_id: PydanticObjectId, issue_id: uuid.UUID, credentials=Depends(JWTBearer())):
     """
     EN: Return issue data
@@ -25,7 +41,7 @@ async def get_issue_view(dashboard_id: PydanticObjectId, issue_id: uuid.UUID, cr
 
 
 @issues_router.get(
-    "/dashboard/{dashboard_id}/issues",
+    "/{dashboard_id}/issues",
     tags=['issues', ],
     response_model=List[Issue])
 async def get_issues_view(dashboard_id: PydanticObjectId, credentials=Depends(JWTBearer())):
@@ -39,7 +55,7 @@ async def get_issues_view(dashboard_id: PydanticObjectId, credentials=Depends(JW
     return issues
 
 
-@issues_router.post("/dashboard/{dashboard_id}/issues", tags=['issues', ], response_model=Issue)
+@issues_router.post("/{dashboard_id}/issues", tags=['issues', ], response_model=Issue)
 async def set_issue_view(dashboard_id: PydanticObjectId, issue: IssueCreate, credentials=Depends(JWTBearer())):
     """
     EN: name must be uniq
@@ -52,23 +68,9 @@ async def set_issue_view(dashboard_id: PydanticObjectId, issue: IssueCreate, cre
         return created_issue
     raise HTTPException(status_code=400, detail="Can not create issue")
 
-#TODO use UserTestDoc and DashboardTestDoc
-# TODO db.collection.bulkWrite()
-@issues_router.patch("/dashboard/{dashboard_id}/issue/{issue_id}", tags=['issues'], response_model=Issue)
-async def update_issue_view(dashboard_id: PydanticObjectId, issue_id: uuid.UUID, issue: IssueUpdate, credentials=Depends(JWTBearer())):
-    """
-    EN:
-
-    RU:
-    """
-    updated_issue = await update_issue(dashboard_id, issue_id, issue)
-    if updated_issue:
-        return updated_issue
-    raise HTTPException(status_code=400, detail="Can not update issue")
-
 
 @issues_router.delete(
-    '/dashboard/{dashboard_id}/issue/{issue_id}',
+    '/{dashboard_id}/issue/{issue_id}',
     tags=['issues', ],
     response_model=List[Issue]
 )  #
@@ -80,3 +82,52 @@ async def delete_issue_view(dashboard_id: PydanticObjectId, issue_id: uuid.UUID,
     """
     issues = await delete_issue(dashboard_id, issue_id)
     return issues
+
+
+@issues_router.patch('/{dashboard_id}/issue/{issue_id}/', tags=['issues', ], )
+async def update_issue():
+    """You can patch only non choices values"""
+    pass
+
+
+@issues_router.put('/{dashboard_id}/issue/{issue_id}/', tags=['issues', ], )
+async def replace_issue():
+    """Update, full replace issue"""
+    pass
+
+
+### TAGS ###
+# TODO replace in new document and maybe in new router
+
+
+@issues_router.get('/{dashboard_id}/issue/{issue_id}/tags', tags=['issues-tags', ], )
+async def get_issue_tags():
+    """Return tags for current issue"""
+    pass
+
+
+@issues_router.post('/{dashboard_id}/issue/{issue_id}/tags', tags=['issues-tags', ], )
+async def add_issue_tags():
+    """Add tags for issue"""
+    pass
+
+
+@issues_router.delete('/{dashboard_id}/issue/{issue_id}/tags', tags=['issues-tags', ], )
+async def pop_issue_tags():
+    """Pull tags for issue"""
+    pass
+
+
+@issues_router.put('/{dashboard_id}/issue/{issue_id}/tags', tags=['issues-tags', ], )
+async def set_issue_tags():
+    """Set tags for issue(replace)"""
+    pass
+
+
+### COLUMNS ###
+# TODO replace in new document and maybe in new router
+
+@issues_router.patch('/{dashboard_id}/issue/{issue_id}/', tags=['issues-columns', ], )
+async def update_issue():
+    """You can patch only non choices values"""
+    pass

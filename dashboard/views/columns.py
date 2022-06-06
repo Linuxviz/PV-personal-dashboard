@@ -8,10 +8,10 @@ from auth.business.jwt_bearer import JWTBearer
 from dashboard.database.columns import create_column, update_column, delete_column, get_columns, get_column
 from dashboard.schemas.columns import Column, ColumnCreate, ColumnUpdate
 
-columns_router = APIRouter()
+columns_router = APIRouter(prefix='/dashboard')
 
 
-@columns_router.get('/dashboard/{dashboard_id}/column/{column_id}', tags=['columns', ], response_model=Column)
+@columns_router.get('/{dashboard_id}/column/{column_id}', tags=['columns', ], response_model=Column)
 async def get_column_view(dashboard_id: PydanticObjectId, column_id: uuid.UUID, credentials=Depends(JWTBearer())):
     """
     EN:
@@ -25,7 +25,7 @@ async def get_column_view(dashboard_id: PydanticObjectId, column_id: uuid.UUID, 
 
 
 @columns_router.get(
-    "/dashboard/{dashboard_id}/columns",
+    "/{dashboard_id}/columns",
     tags=['columns', ],
     response_model=List[Column])
 async def get_columns_view(dashboard_id: PydanticObjectId, credentials=Depends(JWTBearer())):
@@ -39,7 +39,7 @@ async def get_columns_view(dashboard_id: PydanticObjectId, credentials=Depends(J
     return columns
 
 
-@columns_router.post("/dashboard/{dashboard_id}/column", tags=['columns', ])  # , response_model=Column)
+@columns_router.post("/{dashboard_id}/column", tags=['columns', ])  # , response_model=Column)
 async def set_column_view(dashboard_id: PydanticObjectId, column: ColumnCreate, credentials=Depends(JWTBearer())):
     """
     EN: name must be uniq
@@ -53,7 +53,7 @@ async def set_column_view(dashboard_id: PydanticObjectId, column: ColumnCreate, 
     raise HTTPException(status_code=400, detail="Can not create column")
 
 
-@columns_router.patch("/dashboard/{dashboard_id}/column/{column_id}", tags=['columns'], response_model=Column)
+@columns_router.patch("/{dashboard_id}/column/{column_id}", tags=['columns'], response_model=Column)
 async def update_column_view(dashboard_id: PydanticObjectId, column_id: uuid.UUID, column: ColumnUpdate,
                              credentials=Depends(JWTBearer())):
     """
@@ -68,7 +68,7 @@ async def update_column_view(dashboard_id: PydanticObjectId, column_id: uuid.UUI
 
 
 @columns_router.delete(
-    '/dashboard/{dashboard_id}/column/{column_id}',
+    '/{dashboard_id}/column/{column_id}',
     tags=['columns', ],
     response_model=List[Column]
 )  #
