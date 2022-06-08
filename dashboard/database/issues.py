@@ -6,8 +6,9 @@ from beanie import PydanticObjectId
 from fastapi import HTTPException
 
 from config.config import db as mongodb
+from dashboard.models.dashboard import Dashboard
 from dashboard.schemas.columns import Column, ColumnCreate, ColumnUpdate
-from dashboard.schemas.issues import IssueCreate, Issue, IssueUpdate
+from dashboard.schemas.issues import IssueCreate, Issue, IssueUpdate, UpdateColumnInIssueData
 
 
 async def get_issues(dashboard_id: PydanticObjectId) -> List[Column]:
@@ -117,3 +118,47 @@ async def delete_issue(dashboard_id: PydanticObjectId, issue_id: uuid.UUID) -> L
         raise HTTPException(status_code=400, detail="something wrong")
     result = await collection.find_one({"_id": dashboard_id}, {'issues': 1, '_id': 0})
     return result['issues']
+
+
+async def get_data_for_update_column_in_issue(
+        dashboard_id: PydanticObjectId,
+        issue_id: uuid.UUID
+) -> UpdateColumnInIssueData:
+    collection = await mongodb.get_collection('mongodb', 'dashboard')
+    find_query = {
+        "_id": dashboard_id,
+    }
+    projection_query = {
+        "issues": {"elemMatch": {'id': issue_id}, 'column_id': 1},
+        "columns": 1,
+    }
+    try:
+        result = await collection.find_one(find_query, projection_query)
+        print(result)
+    except:
+        # TODO get logger
+        pass
+    columns_ids = [column['id'] for column in result['columns']]
+    column_id = result['issues'][0]['column_id']
+    return UpdateColumnInIssueData(columns_ids=columns_ids, column_id=column_id)
+
+
+async def change_column_for_issue(dashboard_id: PydanticObjectId, issue_id: uuid.UUID, column_id: uuid.UUID):
+    collection = await mongodb.get_collection('mongodb', 'dashboard')
+    find_query = {
+        "_id": dashboard_id,
+        "issues.id": issue_id
+    }
+    update_query = {'issues.$.column_id': column_id}
+    result = await collection.update_one(
+        find_query,
+        {'$set': update_query}
+    )
+    if result.modified_count != 1:
+        raise HTTPException(status_code=400, detail="something wrong")
+    projection_query = {
+        'issues': 1,
+        '_id': 0
+    }
+    result = await collection.find_one(find_query, projection_query)
+    return result['issues'][0]

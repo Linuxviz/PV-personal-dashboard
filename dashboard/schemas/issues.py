@@ -52,8 +52,9 @@ class IssueCreate(BaseModel):
             }
         }
 
+
 class IssueUpdate(BaseModel):
-    #FIXME надо подумать о методах
+    # FIXME надо подумать о методах
     name: str
     description: str | None = None
     # executor: PydanticObjectId | None = None в будущем
@@ -68,3 +69,8 @@ class IssueUpdate(BaseModel):
                 'tags_ids': [],
             }
         }
+
+
+class UpdateColumnInIssueData(BaseModel):
+    column_id: uuid.UUID
+    columns_ids: List[uuid.UUID]

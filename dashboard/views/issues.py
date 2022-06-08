@@ -5,8 +5,10 @@ from beanie import PydanticObjectId
 from fastapi import APIRouter, HTTPException, Depends
 
 from auth.business.jwt_bearer import JWTBearer
-from dashboard.database.issues import get_issue, get_issues, create_issue, update_issue, delete_issue
+from dashboard.database.issues import get_issue, get_issues, create_issue, update_issue, delete_issue, \
+    change_column_for_issue, get_data_for_update_column_in_issue
 from dashboard.schemas.issues import Issue, IssueCreate, IssueUpdate
+from dashboard.business.issues_columns import check_update_columns_conditions
 
 # tags_metadata = [
 #     {"name": "Get Methods", "description": "One other way around"},
@@ -127,7 +129,24 @@ async def set_issue_tags():
 ### COLUMNS ###
 # TODO replace in new document and maybe in new router
 
-@issues_router.patch('/{dashboard_id}/issue/{issue_id}/', tags=['issues-columns', ], )
-async def update_issue():
-    """You can patch only non choices values"""
-    pass
+@issues_router.patch(
+    '/{dashboard_id}/issue/{issue_id}/column/{column_id}',
+    tags=['issues-columns', ],
+    response_model=Issue
+)
+async def update_issue_column(dashboard_id: PydanticObjectId, issue_id: uuid.UUID, column_id: uuid.UUID):
+    """
+    EN: Change column for issue
+
+    RU:
+    """
+    data = await get_data_for_update_column_in_issue(dashboard_id, issue_id)
+    await check_update_columns_conditions(
+        new_column_id=column_id,
+        columns_ids=data.columns_ids,
+        old_column_id=data.column_id,
+    )
+    updated_issue = await change_column_for_issue(dashboard_id, issue_id, column_id)
+    if updated_issue:
+        return updated_issue
+    raise HTTPException(status_code=400, detail="Can not create change issue id")

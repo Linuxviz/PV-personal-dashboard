@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends
 
 from auth.business.jwt_bearer import JWTBearer
 from dashboard.views.columns import columns_router
-from dashboard.views.dashboard import dashboards_router
-from dashboard.views.issue import issues_router
+from dashboard.views.dashboards import dashboards_router
+from dashboard.views.issues import issues_router
 from dashboard.views.tags import tags_router
 
 dashboard_router = APIRouter(prefix="/pvd")  # router for main objects on personal dashboard
