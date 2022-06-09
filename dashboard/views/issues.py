@@ -5,8 +5,10 @@ from beanie import PydanticObjectId
 from fastapi import APIRouter, HTTPException, Depends
 
 from auth.business.jwt_bearer import JWTBearer
+from dashboard.business.issue_tags import check_add_tag_conditions
 from dashboard.database.issues import get_issue, get_issues, create_issue, update_issue, delete_issue, \
-    change_column_for_issue, get_data_for_update_column_in_issue
+    change_column_for_issue, get_data_for_update_column_in_issue, get_issue_tags, get_data_for_add_tag_in_issue, \
+    add_tag_for_issue
 from dashboard.schemas.issues import Issue, IssueCreate, IssueUpdate
 from dashboard.business.issues_columns import check_update_columns_conditions
 
@@ -102,16 +104,39 @@ async def replace_issue():
 # TODO replace in new document and maybe in new router
 
 
-@issues_router.get('/{dashboard_id}/issue/{issue_id}/tags', tags=['issues-tags', ], )
-async def get_issue_tags():
-    """Return tags for current issue"""
-    pass
+@issues_router.get(
+    '/{dashboard_id}/issue/{issue_id}/tags',
+    tags=['issues-tags', ],
+    response_model=List[uuid.UUID]
+)
+async def get_issue_tags_view(
+        dashboard_id: PydanticObjectId,
+        issue_id: uuid.UUID,
+        credentials=Depends(JWTBearer())
+):
+    tags = await get_issue_tags(dashboard_id, issue_id)
+    print("TAG------------------>", tags)
+    if tags:
+        return tags
+    raise HTTPException(status_code=400, detail="Can't find tags or issue")
 
 
-@issues_router.post('/{dashboard_id}/issue/{issue_id}/tags', tags=['issues-tags', ], )
-async def add_issue_tags():
-    """Add tags for issue"""
-    pass
+@issues_router.post(
+    '/{dashboard_id}/issue/{issue_id}/tag/{tag_id}',
+    tags=['issues-tags', ],
+    response_model=Issue)
+async def add_issue_tags(
+        dashboard_id: PydanticObjectId,
+        issue_id: uuid.UUID,
+        tag_id: uuid.UUID,
+        credentials=Depends(JWTBearer())
+):
+    data = await get_data_for_add_tag_in_issue(dashboard_id, issue_id)
+    await check_add_tag_conditions(data, tag_id)
+    updated_issue = await add_tag_for_issue(dashboard_id, issue_id, tag_id)
+    if updated_issue:
+        return updated_issue
+    raise HTTPException(status_code=400, detail="Can't add tag to issue")
 
 
 @issues_router.delete('/{dashboard_id}/issue/{issue_id}/tags', tags=['issues-tags', ], )

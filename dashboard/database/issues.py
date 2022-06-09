@@ -8,7 +8,7 @@ from fastapi import HTTPException
 from config.config import db as mongodb
 from dashboard.models.dashboard import Dashboard
 from dashboard.schemas.columns import Column, ColumnCreate, ColumnUpdate
-from dashboard.schemas.issues import IssueCreate, Issue, IssueUpdate, UpdateColumnInIssueData
+from dashboard.schemas.issues import IssueCreate, Issue, IssueUpdate, UpdateColumnInIssueData, AddTagInIssueData
 
 
 async def get_issues(dashboard_id: PydanticObjectId) -> List[Column]:
@@ -134,7 +134,6 @@ async def get_data_for_update_column_in_issue(
     }
     try:
         result = await collection.find_one(find_query, projection_query)
-        print(result)
     except:
         # TODO get logger
         pass
@@ -153,6 +152,64 @@ async def change_column_for_issue(dashboard_id: PydanticObjectId, issue_id: uuid
     result = await collection.update_one(
         find_query,
         {'$set': update_query}
+    )
+    if result.modified_count != 1:
+        raise HTTPException(status_code=400, detail="something wrong")
+    projection_query = {
+        'issues': 1,
+        '_id': 0
+    }
+    result = await collection.find_one(find_query, projection_query)
+    return result['issues'][0]
+
+
+async def get_issue_tags(dashboard_id: PydanticObjectId, issue_id: uuid.UUID) -> List[uuid.UUID]:
+    collection = await mongodb.get_collection('mongodb', 'dashboard')
+    find_query = {
+        "_id": dashboard_id,
+        "issues.id": issue_id
+    }
+    projection_query = {
+        "issues": {"elemMatch": {'id': issue_id}, 'tags_ids': 1},
+    }
+    result = await collection.find_one(
+        find_query,
+        projection_query
+    )
+    return result['issues'][0]['tags_ids']
+
+
+async def get_data_for_add_tag_in_issue(
+        dashboard_id: PydanticObjectId,
+        issue_id: uuid.UUID,
+) -> AddTagInIssueData:
+    collection = await mongodb.get_collection('mongodb', 'dashboard')
+    find_query = {
+        "_id": dashboard_id,
+    }
+    projection_query = {
+        "issues": {"elemMatch": {'id': issue_id}, 'tags_ids': 1},
+        "tags": 1,
+    }
+    result = await collection.find_one(find_query, projection_query)
+    tags_ids_in_dashboard = [tag['id'] for tag in result['tags']]
+    tags_ids_in_issue = result['issues'][0]['tags_ids']
+    return AddTagInIssueData(
+        tags_ids_in_issue=tags_ids_in_issue,
+        tags_ids_in_dashboard=tags_ids_in_dashboard
+    )
+
+
+async def add_tag_for_issue(dashboard_id: PydanticObjectId, issue_id: uuid.UUID, tag_id: uuid.UUID):
+    collection = await mongodb.get_collection('mongodb', 'dashboard')
+    find_query = {
+        "_id": dashboard_id,
+        "issues.id": issue_id
+    }
+    update_query = {'issues.$.tags_ids': tag_id}
+    result = await collection.update_one(
+        find_query,
+        {'$push': update_query}
     )
     if result.modified_count != 1:
         raise HTTPException(status_code=400, detail="something wrong")

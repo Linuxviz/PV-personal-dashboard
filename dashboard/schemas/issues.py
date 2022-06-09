@@ -74,3 +74,8 @@ class IssueUpdate(BaseModel):
 class UpdateColumnInIssueData(BaseModel):
     column_id: uuid.UUID
     columns_ids: List[uuid.UUID]
+
+
+class AddTagInIssueData(BaseModel):
+    tags_ids_in_issue: List[uuid.UUID]
+    tags_ids_in_dashboard: List[uuid.UUID]
