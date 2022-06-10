@@ -219,3 +219,53 @@ async def add_tag_for_issue(dashboard_id: PydanticObjectId, issue_id: uuid.UUID,
     }
     result = await collection.find_one(find_query, projection_query)
     return result['issues'][0]
+
+
+async def get_data_for_pop_tag_from_issue(
+        dashboard_id: PydanticObjectId,
+        issue_id: uuid.UUID,
+) -> List[uuid.UUID]:
+    collection = await mongodb.get_collection('mongodb', 'dashboard')
+    find_query = {
+        "_id": dashboard_id,
+    }
+    projection_query = {
+        "issues": {"elemMatch": {'id': issue_id}, 'tags_ids': 1},
+    }
+    result = await collection.find_one(find_query, projection_query)
+    tags_ids_in_issue = result['issues'][0]['tags_ids']
+    return tags_ids_in_issue
+
+
+async def pop_tag_from_issue(
+        dashboard_id: PydanticObjectId,
+        issue_id: uuid.UUID,
+        tag_id: uuid.UUID
+) -> Issue:
+    db = await mongodb.get_db('mongodb')
+    collection = db['dashboard']
+    find_query = {
+        "_id": dashboard_id,
+        "issues.id": issue_id
+    }
+    result = await collection.update_one(
+        find_query,
+        {'$pull': {'issues.$.tags_ids': tag_id}}
+    )
+    if result.modified_count != 1:
+        raise HTTPException(status_code=400, detail="something wrong")
+    projection_query = {
+        'issues': 1,
+        '_id': 0
+    }
+    result = await collection.find_one(find_query, projection_query)
+    return result['issues'][0]
+
+
+
+async def update_issue_name(dashboard_id, issue_id, name) -> Issue:
+    pass
+
+
+async def update_issue_description(dashboard_id, issue_id, description) -> Issue:
+    pass
