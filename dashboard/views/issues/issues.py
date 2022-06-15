@@ -22,9 +22,14 @@ from dashboard.schemas.issues import Issue, IssueCreate
 # @app.put("/items", tags=["Put Methods"])
 # @app.post("/items", tags=["Post Methods"])
 # @app.get("/items", tags=["Get Methods"])
-
+from dashboard.views.issues.issues_columns import issues_columns_router
+from dashboard.views.issues.issues_tags import issues_tags_router
+from dashboard.views.issues.issues_text_fields import issues_text_fields_router
 
 issues_router = APIRouter(prefix="/dashboard")
+issues_router.include_router(issues_columns_router)
+issues_router.include_router(issues_tags_router)
+issues_router.include_router(issues_text_fields_router)
 
 
 @issues_router.get('/{dashboard_id}/issue/{issues_id}', tags=['issues', ], response_model=Issue)

@@ -3,6 +3,7 @@ from typing import List
 
 from beanie import PydanticObjectId
 from fastapi import HTTPException
+from pymongo import UpdateOne
 
 from config.config import db as mongodb
 from dashboard.models.dashboard import Dashboard
@@ -63,16 +64,31 @@ async def update_tag(dashboard_id: PydanticObjectId, tag_id: uuid.UUID, tag: Tag
 async def delete_tag(dashboard_id: PydanticObjectId, tag_id: uuid.UUID) -> List[Tag]:
     db = await mongodb.get_db('mongodb')
     collection = db['dashboard']
-    find_query = {
+    find_query_tags_list = {
         "_id": dashboard_id,
         "tags.id": tag_id
     }
-    result = await collection.update_one(
-        find_query,
-        {'$pull': {'tags': {'id': tag_id}}}
-    )
-    if result.modified_count != 1:
-        raise HTTPException(status_code=400, detail="something wrong")
+    update_query_tags_list = {
+        '$pull': {
+            'tags': {'id': tag_id}
+        }
+    }
+    find_query_tags_in_issue = {
+        "_id": dashboard_id,
+        "issues.tags_ids": tag_id,
+    }
+    update_query_tags_in_issue = {
+        '$pull': {
+            'issues.$.tags_ids': tag_id
+        }
+    }
+    result = await collection.bulk_write([
+        UpdateOne(find_query_tags_list, update_query_tags_list),
+        UpdateOne(find_query_tags_in_issue, update_query_tags_in_issue),
+    ])
+    # TODO fix check of updating
+    # if result.modified_count != 1:
+    #     raise HTTPException(status_code=400, detail="something wrong")
     result = await collection.find_one({"_id": dashboard_id}, {'tags': 1, '_id': 0})
     return result['tags']
 

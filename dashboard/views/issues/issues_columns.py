@@ -1,20 +1,21 @@
 import uuid
 
 from beanie import PydanticObjectId
-from fastapi import HTTPException
+from fastapi import HTTPException, APIRouter
 
 from dashboard.business.issues_columns import check_update_columns_conditions
 from dashboard.database.issues import get_data_for_update_column_in_issue, change_column_for_issue
 from dashboard.schemas.issues import Issue
-from dashboard.views.issues.issues import issues_router
+
+issues_columns_router = APIRouter()
 
 
-@issues_router.patch(
+@issues_columns_router.patch(
     '/{dashboard_id}/issue/{issue_id}/column/{column_id}',
     tags=['issues-columns', ],
     response_model=Issue
 )
-async def update_issue_column(dashboard_id: PydanticObjectId, issue_id: uuid.UUID, column_id: uuid.UUID):
+async def update_issue_column_view(dashboard_id: PydanticObjectId, issue_id: uuid.UUID, column_id: uuid.UUID):
     """
     EN: Change column for issue
 

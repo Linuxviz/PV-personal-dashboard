@@ -15,7 +15,10 @@ tags_router = APIRouter(prefix='/dashboard')
     "/{dashboard_id}/tags",
     tags=['tags', ],
     response_model=TagListResponse)
-async def get_tags_view(dashboard_id: PydanticObjectId, credentials=Depends(JWTBearer())):
+async def get_tags_view(
+        dashboard_id: PydanticObjectId,
+        credentials=Depends(JWTBearer())
+):
     """
     EN: Return list of all created tags in current dashboard
 
@@ -31,7 +34,7 @@ async def get_tags_view(dashboard_id: PydanticObjectId, credentials=Depends(JWTB
     }
 
 
-@tags_router.post("/{dashboard_id}/tag", tags=['tags', ], response_model=TagChangeResponse)
+@tags_router.post("/{dashboard_id}/tag", tags=['tags', ], response_model=Tag)
 async def set_tag_view(dashboard_id: PydanticObjectId, tag: Tag, credentials=Depends(JWTBearer())):
     """
     EN: Return list of all created tags in current dashboard
@@ -41,22 +44,21 @@ async def set_tag_view(dashboard_id: PydanticObjectId, tag: Tag, credentials=Dep
     # TODO сделать проверку на права операции
     tag = await create_tag(dashboard_id, tag)
     if tag:
-        return {
-            "tag": tag,
-            "status_code": 200,
-            "response_type": "success",
-            "description": "The list of tags data",
-        }
-    return {
-        "tag": tag,
-        "status_code": 400,
-        "response_type": "error",
-        "description": "Can not crate tag",
-    }
+        return tag
+    raise HTTPException(status_code=400, detail="Can not update tag")
 
 
-@tags_router.patch("/{dashboard_id}/tag/{tag_id}", tags=['tags'], response_model=TagChangeResponse)
-async def update_tag_view(dashboard_id: PydanticObjectId, tag_id: uuid.UUID, tag: TagUpdate, credentials=Depends(JWTBearer())):
+@tags_router.patch(
+    "/{dashboard_id}/tag/{tag_id}",
+    tags=['tags'],
+    response_model=TagChangeResponse
+)
+async def update_tag_view(
+        dashboard_id: PydanticObjectId,
+        tag_id: uuid.UUID,
+        tag: Tag,
+        credentials=Depends(JWTBearer())
+):
     """
     EN:
 
@@ -69,22 +71,20 @@ async def update_tag_view(dashboard_id: PydanticObjectId, tag_id: uuid.UUID, tag
     """
     updated_tag = await update_tag(dashboard_id, tag_id, tag)
     if updated_tag:
-        return {
-            "tag": updated_tag,
-            "status_code": 200,
-            "response_type": "success",
-            "description": "Tag update successfully",
-        }
-    return {
-        "tag": tag,
-        "status_code": 400,
-        "response_type": "error",
-        "description": "Can not update tag",
-    }
+        return updated_tag
+    raise HTTPException(status_code=400, detail="Can not update tag")
 
 
-@tags_router.delete('/{dashboard_id}/tag/{tag_id}', tags=['tags', ], response_model=List[Tag])  #
-async def delete_tag_view(dashboard_id: PydanticObjectId, tag_id: uuid.UUID, credentials=Depends(JWTBearer())):
+@tags_router.delete(
+    '/{dashboard_id}/tag/{tag_id}',
+    tags=['tags', ],
+    response_model=List[Tag]
+)
+async def delete_tag_view(
+        dashboard_id: PydanticObjectId,
+        tag_id: uuid.UUID,
+        credentials=Depends(JWTBearer())
+):
     """
     EN: Delete tag in dashboard, and return list of tags. If all tags id deletes will return empty list "[]"
 
@@ -108,4 +108,3 @@ async def get_tag_view(dashboard_id: PydanticObjectId, tag_id: uuid.UUID, creden
     if tag:
         return tag
     raise HTTPException(status_code=400, detail="Can not find the tag")
-

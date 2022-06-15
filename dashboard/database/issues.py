@@ -262,10 +262,60 @@ async def pop_tag_from_issue(
     return result['issues'][0]
 
 
+async def update_issue_name(
+        dashboard_id: PydanticObjectId,
+        issue_id: uuid.UUID,
+        name: str
+) -> Issue:
+    db = await mongodb.get_db('mongodb')
+    collection = db['dashboard']
+    find_query = {
+        "_id": dashboard_id,
+        "issues.id": issue_id,
+        "issues.name": {"$ne": name},
+    }
+    result = await collection.update_one(
+        find_query,
+        {'$set': {'issues.$.name': name}}
+    )
+    if result.modified_count != 1:
+        raise HTTPException(status_code=400, detail="something wrong")
+    find_query = {
+        "_id": dashboard_id,
+        "issues.id": issue_id,
+    }
+    projection_query = {
+        'issues': 1,
+        '_id': 0
+    }
+    result = await collection.find_one(find_query, projection_query)
+    return result['issues'][0]
 
-async def update_issue_name(dashboard_id, issue_id, name) -> Issue:
-    pass
 
-
-async def update_issue_description(dashboard_id, issue_id, description) -> Issue:
-    pass
+async def update_issue_description(
+        dashboard_id: PydanticObjectId,
+        issue_id: uuid.UUID,
+        description: str
+) -> Issue:
+    db = await mongodb.get_db('mongodb')
+    collection = db['dashboard']
+    find_query = {
+        "_id": dashboard_id,
+        "issues.id": issue_id,
+    }
+    result = await collection.update_one(
+        find_query,
+        {'$set': {'issues.$.description': description}}
+    )
+    if result.modified_count != 1:
+        raise HTTPException(status_code=400, detail="something wrong")
+    find_query = {
+        "_id": dashboard_id,
+        "issues.id": issue_id,
+    }
+    projection_query = {
+        'issues': 1,
+        '_id': 0
+    }
+    result = await collection.find_one(find_query, projection_query)
+    return result['issues'][0]
