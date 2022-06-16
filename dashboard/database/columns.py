@@ -3,6 +3,7 @@ from typing import List
 
 from beanie import PydanticObjectId
 from fastapi import HTTPException
+from pymongo import UpdateOne
 
 from config.config import db as mongodb
 from dashboard.schemas.columns import Column, ColumnCreate, ColumnUpdate
@@ -94,8 +95,11 @@ async def delete_column(dashboard_id: PydanticObjectId, column_id: uuid.UUID) ->
     collection = db['dashboard']
     find_query = {
         "_id": dashboard_id,
-        "columns.id": column_id
+        "issues.column_id": column_id
     }
+    result = await collection.count_documents(find_query)
+    if result:
+        raise HTTPException(status_code=400, detail="Before delete column replace issues from column")
     result = await collection.update_one(
         find_query,
         {'$pull': {'columns': {'id': column_id}}}

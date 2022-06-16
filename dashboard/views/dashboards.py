@@ -10,21 +10,40 @@ from auth.business.jwt_bearer import JWTBearer
 dashboards_router = APIRouter()
 
 
-@dashboards_router.get("/dashboards", tags=['dashboards', ], response_model=DashboardsIds)
-async def get_dashboards_view(credentials=Depends(JWTBearer())):
-    """
-    EN: Return **dict** of **list** dashboard ids grouped by status current user in itself
+@dashboards_router.get(
+    "/dashboards",
+    tags=['Dashboards', ],
+    response_model=DashboardsIds
+)
+async def get_dashboards_available_to_the_user(
+        credentials=Depends(JWTBearer())
+) -> DashboardsIds:
 
-    RU: Возвращает словарь списков с id дашбордов сгруппированных по статусу пользователя в них.
     """
+    EN: Return **dict|object** of **lists** of dashboard ids grouped by status current user in itself
+
+    RU: Возвращает словарь|объект списков с id дашбордов сгруппированных по статусу пользователя в них.
+    """
+
     dashboards = await get_dashboards(credentials['user_id'])
     if dashboards:
         return dashboards
-    raise HTTPException(status_code=400, detail=f"Can not find dashboards with {credentials['user_id']} user")
+    raise HTTPException(
+        status_code=400,
+        detail=f"Can not find dashboards data for user id: {credentials['user_id']}."
+    )
 
 
-@dashboards_router.get("/dashboard/{dashboard_id}", tags=['dashboards', ], response_model=Dashboard)
-async def get_dashboard_view(dashboard_id: PydanticObjectId, credentials=Depends(JWTBearer())):
+@dashboards_router.get(
+    "/dashboard/{dashboard_id}",
+    tags=['Dashboards', ],
+    response_model=Dashboard
+)
+async def get_dashboard_data(
+        dashboard_id: PydanticObjectId,
+        credentials=Depends(JWTBearer())
+) -> Dashboard:
+
     """
     EN: Return Dashboard data for id
 
@@ -34,13 +53,23 @@ async def get_dashboard_view(dashboard_id: PydanticObjectId, credentials=Depends
     dashboard = await get_dashboard(dashboard_id)
     if dashboard:
         return dashboard
-    raise HTTPException(status_code=400, detail=f"Can not find dashboard with {credentials['user_id']} user")
+    raise HTTPException(
+        status_code=400,
+        detail=f"Can not find dashboard, check id."
+    )
 
 
-@dashboards_router.post("/dashboard", tags=['dashboards', ], response_model=Dashboard)
-async def create_dashboard_view(dashboard: DashboardCreate, credentials=Depends(JWTBearer())):
+@dashboards_router.post(
+    "/dashboard",
+    tags=['Dashboards', ],
+    response_model=Dashboard
+)
+async def create_dashboard_object(
+        dashboard: DashboardCreate,
+        credentials=Depends(JWTBearer())
+):
     """
-    EN: Create dashboard
+    EN: Create dashboard object
 
     RU: Создает дашборд
     """
@@ -50,8 +79,14 @@ async def create_dashboard_view(dashboard: DashboardCreate, credentials=Depends(
     raise HTTPException(status_code=400, detail="Dashboard created unsuccessfully")
 
 
-@dashboards_router.delete("/dashboard/{dashboard_id}", tags=['dashboards', ],)
-async def delete_dashboard_view(dashboard_id: PydanticObjectId, credentials=Depends(JWTBearer())):
+@dashboards_router.delete(
+    "/dashboard/{dashboard_id}",
+    tags=['Dashboards', ]
+)
+async def delete_dashboard_view(
+        dashboard_id: PydanticObjectId,
+        credentials=Depends(JWTBearer())
+):
     """
     EN: REAL Delete dashboard
 

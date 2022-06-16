@@ -21,8 +21,8 @@ class Settings(BaseSettings):
 
 
 class DataBase:
-    def __int__(self):
-        self.client: AsyncIOMotorClient | None = None
+    def __init__(self):
+        self.client = None
 
     async def get_db(self, db_name: str) -> AsyncIOMotorClient | None:
         try:
@@ -46,9 +46,11 @@ class DataBase:
                 database=self.client.get_default_database(),
                 document_models=[User, Dashboard]
             )
-            return self.client
         except Exception as e:
             print("Error connection to database: ", e)
+
+    async def close_database(self):
+        self.client.close()
 
 
 db = DataBase()

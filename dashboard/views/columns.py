@@ -77,7 +77,6 @@ async def delete_column_view(dashboard_id: PydanticObjectId, column_id: uuid.UUI
     EN: Delete tag in dashboard, and return list of tags. If all tags id deletes will return empty list "[]"
 
     RU:
-    # TODO need delete column, bun before need delete tag from issues.
     """
     columns = await delete_column(dashboard_id, column_id)
     return columns

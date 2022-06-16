@@ -19,7 +19,7 @@ async def get_dashboard(dashboard_id: PydanticObjectId) -> Dashboard:
     """
     dashboard = await Dashboard.get(dashboard_id)
     if not dashboard:
-        raise HTTPException(status_code=400, detail="Can not find dashboard")
+        raise HTTPException(status_code=400, detail="Can not find dashboard.")
     return dashboard
 
 
@@ -33,7 +33,7 @@ async def get_dashboards(user_id: PydanticObjectId) -> DashboardsIds:
     if not user:
         raise HTTPException(
             status_code=400,
-            detail="Can not find user"
+            detail="Can not find user."
         )
     return user.dashboards
 
@@ -45,23 +45,23 @@ async def create_dashboard(
     """
     EN: When we create dashboard we should add dashboard to user model
 
-    RU:
+    RU: При создании дашборда в модель юзера записывается id этого дашборда
     """
     users_dict = UsersIds(owner_id=user_id)
     dashboard = Dashboard(**dashboard_data.dict(), users=users_dict)
+    user = await User.get(user_id)
+    if not user:
+        raise HTTPException(
+            status_code=400,
+            detail=f" We can ton find user in database with current id: {user_id}."
+        )
     created_dashboard = await dashboard.create()
     if not created_dashboard:
-        raise HTTPException(status_code=400, detail="Can not create dashboard")
-    user = await User.get(user_id)
+        raise HTTPException(status_code=400, detail="We can not create dashboard in db.")
     update_query = {
         "$push": {
             'dashboards.owner_dashboards_ids': PydanticObjectId(created_dashboard.id)
         }}
-    if not user:
-        raise HTTPException(
-            status_code=400,
-            detail="Can not find user"
-        )
     await user.update(update_query)
     return created_dashboard
 
@@ -70,9 +70,9 @@ async def delete_dashboard(
         dashboard_id: PydanticObjectId,
 ):
     """
-    EN:
+    EN: Dashboard **REALLY DELETED**. We not save data with flag deleted!
 
-    RU:
+    RU: При удалении дашборда он действительно удаляется, мы не храним удаленные данные.
     """
     db = await mongodb.get_db('mongodb')
     dashboard_collection = db['dashboard']

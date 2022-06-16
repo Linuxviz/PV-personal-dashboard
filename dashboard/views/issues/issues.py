@@ -16,12 +16,7 @@ from dashboard.schemas.issues import Issue, IssueCreate
 # ]
 #
 # app = FastAPI(openapi_tags=tags_metadata)
-#
-#
-# @app.delete("/items", tags=["Delete Methods"])
-# @app.put("/items", tags=["Put Methods"])
-# @app.post("/items", tags=["Post Methods"])
-# @app.get("/items", tags=["Get Methods"])
+
 from dashboard.views.issues.issues_columns import issues_columns_router
 from dashboard.views.issues.issues_tags import issues_tags_router
 from dashboard.views.issues.issues_text_fields import issues_text_fields_router
@@ -32,7 +27,7 @@ issues_router.include_router(issues_tags_router)
 issues_router.include_router(issues_text_fields_router)
 
 
-@issues_router.get('/{dashboard_id}/issue/{issues_id}', tags=['issues', ], response_model=Issue)
+@issues_router.get('/{dashboard_id}/issue/{issues_id}', tags=['Issues', ], response_model=Issue)
 async def get_issue_view(dashboard_id: PydanticObjectId, issue_id: uuid.UUID, credentials=Depends(JWTBearer())):
     """
     EN: Return issue data
@@ -47,7 +42,7 @@ async def get_issue_view(dashboard_id: PydanticObjectId, issue_id: uuid.UUID, cr
 
 @issues_router.get(
     "/{dashboard_id}/issues",
-    tags=['issues', ],
+    tags=['Issues', ],
     response_model=List[Issue])
 async def get_issues_view(dashboard_id: PydanticObjectId, credentials=Depends(JWTBearer())):
     """
@@ -60,7 +55,7 @@ async def get_issues_view(dashboard_id: PydanticObjectId, credentials=Depends(JW
     return issues
 
 
-@issues_router.post("/{dashboard_id}/issues", tags=['issues', ], response_model=Issue)
+@issues_router.post("/{dashboard_id}/issues", tags=['Issues', ], response_model=Issue)
 async def set_issue_view(dashboard_id: PydanticObjectId, issue: IssueCreate, credentials=Depends(JWTBearer())):
     """
     EN: name must be uniq
@@ -76,7 +71,7 @@ async def set_issue_view(dashboard_id: PydanticObjectId, issue: IssueCreate, cre
 
 @issues_router.delete(
     '/{dashboard_id}/issue/{issue_id}',
-    tags=['issues', ],
+    tags=['Issues', ],
     response_model=List[Issue]
 )  #
 async def delete_issue_view(dashboard_id: PydanticObjectId, issue_id: uuid.UUID, credentials=Depends(JWTBearer())):
