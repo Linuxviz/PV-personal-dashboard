@@ -11,24 +11,35 @@ from dashboard.schemas.columns import Column, ColumnCreate, ColumnUpdate
 columns_router = APIRouter(prefix='/dashboard')
 
 
-@columns_router.get('/{dashboard_id}/column/{column_id}', tags=['columns', ], response_model=Column)
-async def get_column_view(dashboard_id: PydanticObjectId, column_id: uuid.UUID, credentials=Depends(JWTBearer())):
+@columns_router.get(
+    "/{dashboard_id}/column/{column_id}",
+    tags=['Columns', ],
+    response_model=Column
+)
+async def get_column_object(
+        dashboard_id: PydanticObjectId,
+        column_id: uuid.UUID,
+        credentials=Depends(JWTBearer())
+) -> Column:
     """
-    EN:
+    EN: Return column object data in dashboard
 
-    RU:
+    RU: Возвращает данные объекта колонки в дашборде
     """
     column = await get_column(dashboard_id, column_id)
     if column:
         return column
-    raise HTTPException(status_code=400, detail="Can not find the tag")
+    raise HTTPException(status_code=400, detail='Can not find the tag')
 
 
 @columns_router.get(
     "/{dashboard_id}/columns",
-    tags=['columns', ],
+    tags=['Columns', ],
     response_model=List[Column])
-async def get_columns_view(dashboard_id: PydanticObjectId, credentials=Depends(JWTBearer())):
+async def get_columns_objects_in_dashboard(
+        dashboard_id: PydanticObjectId,
+        credentials=Depends(JWTBearer())
+) -> List[Column]:
     """
     EN: Return list of all created tags in current dashboard
 
@@ -39,8 +50,16 @@ async def get_columns_view(dashboard_id: PydanticObjectId, credentials=Depends(J
     return columns
 
 
-@columns_router.post("/{dashboard_id}/column", tags=['columns', ])  # , response_model=Column)
-async def set_column_view(dashboard_id: PydanticObjectId, column: ColumnCreate, credentials=Depends(JWTBearer())):
+@columns_router.post(
+    "/{dashboard_id}/column",
+    tags=['Columns', ],
+    response_model=Column
+)
+async def set_column_object(
+        dashboard_id: PydanticObjectId,
+        column: ColumnCreate,
+        credentials=Depends(JWTBearer()),
+) -> Column:
     """
     EN: name must be uniq
 
@@ -53,13 +72,21 @@ async def set_column_view(dashboard_id: PydanticObjectId, column: ColumnCreate, 
     raise HTTPException(status_code=400, detail="Can not create column")
 
 
-@columns_router.patch("/{dashboard_id}/column/{column_id}", tags=['columns'], response_model=Column)
-async def update_column_view(dashboard_id: PydanticObjectId, column_id: uuid.UUID, column: ColumnUpdate,
-                             credentials=Depends(JWTBearer())):
+@columns_router.patch(
+    "/{dashboard_id}/column/{column_id}",
+    tags=['Columns'],
+    response_model=Column
+)
+async def update_column_object(
+        dashboard_id: PydanticObjectId,
+        column_id: uuid.UUID,
+        column: ColumnUpdate,
+        credentials=Depends(JWTBearer())
+) -> Column:
     """
-    EN:
+    EN: Update column object
 
-    RU:
+    RU: Обновляет данные колонки
     """
     updated_column = await update_column(dashboard_id, column_id, column)
     if updated_column:
@@ -69,14 +96,16 @@ async def update_column_view(dashboard_id: PydanticObjectId, column_id: uuid.UUI
 
 @columns_router.delete(
     '/{dashboard_id}/column/{column_id}',
-    tags=['columns', ],
+    tags=['Columns', ],
     response_model=List[Column]
 )  #
-async def delete_column_view(dashboard_id: PydanticObjectId, column_id: uuid.UUID, credentials=Depends(JWTBearer())):
+async def delete_column_object(dashboard_id: PydanticObjectId, column_id: uuid.UUID, credentials=Depends(JWTBearer())):
     """
-    EN: Delete tag in dashboard, and return list of tags. If all tags id deletes will return empty list "[]"
+    EN: Delete column in dashboard, and return list of column. If all column id deletes will return empty list "[]".
+    Before delete column check that in column has not any issue
 
-    RU:
+    RU: Удаляет колонку из дашборда, в колонке не должно быть ни одного тикета. После удаления возвращает список колонок
+    в дашборде, если колонок не осталось вернет пустой список.
     """
     columns = await delete_column(dashboard_id, column_id)
     return columns

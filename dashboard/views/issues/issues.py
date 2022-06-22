@@ -22,8 +22,8 @@ from dashboard.views.issues.issues_tags import issues_tags_router
 from dashboard.views.issues.issues_text_fields import issues_text_fields_router
 
 issues_router = APIRouter(prefix="/dashboard")
-issues_router.include_router(issues_columns_router)
 issues_router.include_router(issues_tags_router)
+issues_router.include_router(issues_columns_router)
 issues_router.include_router(issues_text_fields_router)
 
 

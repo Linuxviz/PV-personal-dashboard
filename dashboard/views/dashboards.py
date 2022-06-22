@@ -15,14 +15,13 @@ dashboards_router = APIRouter()
     tags=['Dashboards', ],
     response_model=DashboardsIds
 )
-async def get_dashboards_available_to_the_user(
+async def get_dashboard_objects_available_to_the_user(
         credentials=Depends(JWTBearer())
 ) -> DashboardsIds:
-
     """
     EN: Return **dict|object** of **lists** of dashboard ids grouped by status current user in itself
 
-    RU: Возвращает словарь|объект списков с id дашбордов сгруппированных по статусу пользователя в них.
+    RU: Возвращает **словарь|объект** списков с id дашбордов сгруппированных по статусу пользователя в них.
     """
 
     dashboards = await get_dashboards(credentials['user_id'])
@@ -39,11 +38,10 @@ async def get_dashboards_available_to_the_user(
     tags=['Dashboards', ],
     response_model=Dashboard
 )
-async def get_dashboard_data(
+async def get_dashboard_object(
         dashboard_id: PydanticObjectId,
         credentials=Depends(JWTBearer())
 ) -> Dashboard:
-
     """
     EN: Return Dashboard data for id
 
@@ -83,14 +81,14 @@ async def create_dashboard_object(
     "/dashboard/{dashboard_id}",
     tags=['Dashboards', ]
 )
-async def delete_dashboard_view(
+async def delete_dashboard_object(
         dashboard_id: PydanticObjectId,
         credentials=Depends(JWTBearer())
 ):
     """
     EN: REAL Delete dashboard
 
-    RU: Удаляет дашбордdelete
+    RU: Удаляет дашборд, данные не помечаются как удаленные а действительно удаляются
     """
     # TODO разделить владельцев дашбордов и просто участников и настроить права доступа
     deleted_dashboard = await delete_dashboard(dashboard_id)
